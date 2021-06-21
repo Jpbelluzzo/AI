@@ -1,11 +1,9 @@
 from collections import defaultdict
 from random import seed
 from random import randint
-import json
 import math
-import matplotlib.pyplot as plt
 import numpy as np
-seed(1)
+seed(3)
 
 def knn_generator(k, n, x, y):
     knn_graph = defaultdict(dict)
@@ -22,7 +20,11 @@ def knn_generator(k, n, x, y):
         closest_nodes = np.argsort(distances[node])
         for i in range(k):
             if i<n:
-                knn_graph[node]['connections'] += [closest_nodes[i+1]]
+                closest_node = closest_nodes[i+1]
+                if closest_node not in knn_graph[node]['connections']:
+                    knn_graph[node]['connections'] += [closest_node]
+                if node not in knn_graph[closest_node]['connections']:
+                    knn_graph[closest_node]['connections'].append(node)
                 if [closest_nodes[i+1],node] not in connections:
                     connections += [[node, closest_nodes[i+1]]]
     return knn_graph, x_coords, y_coords, connections
@@ -39,18 +41,3 @@ def get_nodes_distances(graph):
 
 def get_euclidean_distance(graph, i, j):
     return math.sqrt(math.pow(graph[i]['x']-graph[j]['x'], 2) + math.pow(graph[i]['y']-graph[j]['y'], 2))
-
-graph, x_coords, y_coords, connections = knn_generator(2, 10, 500, 500)
-print(connections)
-plt.scatter(x_coords, y_coords, marker='o')
-
-#for i in range(len(graph)):
-#    plt.annotate('Point' + str(i), (x_coords[i],y_coords[i]))
-
-for connection in connections:
-    point1 = connection[0]
-    point2 = connection[1]
-    plt.plot((graph[point1]['x'], graph[point2]['x']),(graph[point1]['y'], graph[point2]['y']),'r')
-
-plt.savefig('teste.png')
-#print(json.dumps(dict.__repr__(graph), indent=4))
