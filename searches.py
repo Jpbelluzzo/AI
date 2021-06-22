@@ -9,10 +9,9 @@ def dfs_recursion(node, end_node, visited, graph, connections):
     visited.append(node)
     if node == end_node:
         return visited
-    neighbours = graph[node]['connections']
+    neighbours = connections[node]
     for neighbour in neighbours:
         if neighbour not in visited:
-            #print(node, neighbour)
             dfs_recursion(neighbour, end_node, visited, graph, connections)
             if(visited[-1] == end_node):
                 return visited
@@ -29,7 +28,7 @@ def bfs_recursion(node, end_node, path, queue, graph, connections):
     path.append(node)
     if node == end_node:
         return path
-    neighbours = graph[node]['connections']
+    neighbours = connections[node]
     for neighbour in neighbours:
         if neighbour not in queue:        
             queue += [neighbour]
