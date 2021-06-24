@@ -37,23 +37,42 @@ def breadth_first_search(init_node, end_node, vertices, connections):
 
 def best_first_search(init_node, end_node, vertices, connections, distances):
     visited = [False]*len(vertices)
-    path = []
-    queue = [init_node]
     visited[init_node] = True
+    queue = [[init_node]]
     while(queue):
-        first_node = queue[0]
-        path.append(first_node)
-        del queue[0]
-        visited[first_node] = True
-        node_connections = connections[first_node]
-        if end_node in node_connections:
-            path.append(end_node)
+        path = queue.pop(0)
+        node = path[-1]
+        if node == end_node:
             return path
-        node_distances = distances[first_node]
-        neighbours = []
-        for node in node_connections:
-            if node not in queue and not visited[node]:
-                neighbours.append((node, distances[first_node][node]))
-        neighbours.sort(key = lambda x: x[1])
-        for node in neighbours:
-            queue.append(node[0])
+        neighbours = connections[node]
+        best_paths = []
+        for neighbour in neighbours:
+            best_paths.append((neighbour, distances[neighbour][node]))
+        best_paths.sort(key=lambda path:path[1])
+        for neighbour in best_paths:
+            if not visited[neighbour[0]]:
+                aux = path + [neighbour[0]]
+                queue.append(aux)
+                visited[neighbour[0]] = True
+
+# A Algorithm
+
+def A_search(init_node, end_node, vertices, connections, distances):
+    visited = [False]*len(vertices)
+    visited[init_node] = True
+    queue = [[init_node]]
+    while(queue):
+        path = queue.pop(0)
+        node = path[-1]
+        if node == end_node:
+            return path
+        neighbours = connections[node]
+        best_paths = []
+        for neighbour in neighbours:
+            best_paths.append((neighbour, distances[neighbour][node]+distances[neighbour][end_node]))
+        best_paths.sort(key=lambda path:path[1])
+        for neighbour in best_paths:
+            if not visited[neighbour[0]]:
+                aux = path + [neighbour[0]]
+                queue.append(aux)
+                visited[neighbour[0]] = True
