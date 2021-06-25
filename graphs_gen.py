@@ -1,14 +1,11 @@
-from collections import defaultdict
 from os import close
 from random import seed
-import math
 import random
 from matplotlib.pyplot import connect
 import numpy as np
 from numpy.core.defchararray import index, mod
 from scipy.spatial import distance, distance_matrix
 import progressbar
-import networkx
 seed(3)
 
 def knn_generator(k, n, x, y):
@@ -76,3 +73,9 @@ def complete_bipartite_graph_generator(n, x, y):
     print('Calculating distances...')
     distances = distance_matrix(points, points)
     return vertices, connections, distances, x_coords, y_coords
+
+def get_path_distance(path, distances):
+    distance = 0
+    for i in range(1,len(path)):
+        distance += distances[path[i]][path[i-1]]
+    return distance

@@ -1,6 +1,3 @@
-import bisect
-from sys import path
-
 # Depth-First Search Algorithm
 
 def depth_first_search(init_node, end_node, vertices, connections):
@@ -40,7 +37,8 @@ def best_first_search(init_node, end_node, vertices, connections, distances):
     visited[init_node] = True
     queue = [([init_node],0)]
     while(queue):
-        (path, accumulated_distance) = queue.pop(0)
+        (path, accumulated_distance) = min(queue, key= lambda tup: tup[1])
+        queue.remove((path, accumulated_distance))
         node = path[-1]
         if node == end_node:
             return path
@@ -62,14 +60,15 @@ def A_search(init_node, end_node, vertices, connections, distances):
     visited[init_node] = True
     queue = [([init_node],0)]
     while(queue):
-        (path, accumulated_distance) = queue.pop(0)
+        (path, accumulated_distance) = min(queue, key= lambda tup: tup[1])
+        queue.remove((path, accumulated_distance))
         node = path[-1]
         if node == end_node:
             return path
         neighbours = connections[node]
         best_paths = []
         for neighbour in neighbours:
-            best_paths.append((neighbour, accumulated_distance + distances[neighbour][node] + 2*distances[neighbour][end_node]))
+            best_paths.append((neighbour, accumulated_distance + distances[neighbour][node] + distances[neighbour][end_node]**2))
         best_paths.sort(key=lambda path:path[1])
         for neighbour in best_paths:
             if not visited[neighbour[0]]:
@@ -84,7 +83,8 @@ def A_star_search(init_node, end_node, vertices, connections, distances):
     visited[init_node] = True
     queue = [([init_node],0)]
     while(queue):
-        (path, accumulated_distance) = queue.pop(0)
+        (path, accumulated_distance) = min(queue, key= lambda tup: tup[1])
+        queue.remove((path, accumulated_distance))
         node = path[-1]
         if node == end_node:
             return path
