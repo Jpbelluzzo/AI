@@ -79,3 +79,33 @@ def get_path_distance(path, distances):
     for i in range(1,len(path)):
         distance += distances[path[i]][path[i-1]]
     return distance
+
+def random_graph_generator(n, a, x, y):
+    p = a / (n**2 - n)
+    vertices = []
+    x_coords = np.empty(0)
+    y_coords = np.empty(0)
+    connections = [[] for i in range(n)]
+    for i in range(n):
+        coords = tuple(generate_node(0, x, 0, y))
+        vertices.append(coords)
+        x_coords = np.append(x_coords, coords[0])
+        y_coords = np.append(y_coords, coords[1])
+    print('Nodes generated with success!')
+    print('Calculating distances...')
+    points = []
+    for i in range(n):
+        points.append([x_coords[i], y_coords[i]])
+    distances = distance_matrix(points, points)
+    print('Generating edges...')
+    with progressbar.ProgressBar(max_value=n) as bar:
+        for id, vertice in enumerate(vertices):
+            for id_neighbour, neighbour in enumerate(vertices):
+                if id != id_neighbour:
+                    if random.random() < p:
+                        if id not in connections[id_neighbour]:
+                            connections[id_neighbour].append(id)
+                        if id_neighbour not in connections[id]:
+                            connections[id].append(id_neighbour)
+            bar.update(id)
+    return vertices, connections, distances, x_coords, y_coords

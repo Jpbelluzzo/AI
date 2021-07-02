@@ -5,19 +5,30 @@ import searches
 import time
 import matplotlib.pyplot as plt
 
-GRAPH_GEN_ALGORITHM = 1
-SEARCH_ALGORITHM = 5
-k = 4
-n = 3000
+####################        Parameters        ####################
+
+GRAPH_GEN_ALGORITHM = 3
+SEARCH_ALGORITHM = 1
+
+k = 4                   # Valid for knn-graph (GRAPH_GEN_ALGORITHM = 1)
+n = 50
+a = 15                 # Valid for random graphs (GRAPH_GEN_ALGORITHM = 3)
 x = 7000
 y = 7000
-start_node = 1424
-end_node = 2111
+
+start_node = 43
+end_node = 1
+
+####################        Main        ####################       
 
 if GRAPH_GEN_ALGORITHM == 1:
     vertices, connections, distances, x_coords, y_coords = graphs_gen.knn_generator(k, n, x, y)
 elif GRAPH_GEN_ALGORITHM == 2:
     vertices, connections, distances, x_coords, y_coords = graphs_gen.complete_bipartite_graph_generator(n, x, y)
+elif GRAPH_GEN_ALGORITHM == 3:
+    vertices, connections, distances, x_coords, y_coords = graphs_gen.random_graph_generator(n, a, x, y)
+print(connections)
+path = []
 
 if SEARCH_ALGORITHM == 1:
     print('Executing depth-first search...')
@@ -59,46 +70,64 @@ elif SEARCH_ALGORITHM == 5:
     print('Time to execute search algorithm: ' + str(end-start))
     #print(path)
 
-distance = graphs_gen.get_path_distance(path, distances)
+print(path)
 
 if path:
-    print('Generating plot...')
-    fig, ax = plt.subplots()
+    distance = graphs_gen.get_path_distance(path, distances)
+else:
+    distance = None
 
-    ax.scatter(x_coords, y_coords, zorder=2, marker='o', color='#0015ff', s=3)
-    ax.scatter([x_coords[start_node], x_coords[end_node]], [y_coords[start_node], y_coords[end_node]], zorder=3, marker='o', color='#000000')
-    ax.annotate('ORIGEM', [x_coords[start_node], y_coords[start_node]], weight='bold', size=6)
-    ax.annotate('DESTINO', [x_coords[end_node], y_coords[end_node]], weight='bold', size=6)
-    # for i in range(len(vertices)):
-    #     plt.annotate(str(i), (x_coords[i],y_coords[i]))
-    print('Plotting graph...')
+####################        Plotting        ####################
 
-    plt.xlabel('x')
-    plt.ylabel('y')
-    plt.title(plot_title, loc='left')
-    if GRAPH_GEN_ALGORITHM == 1:
+print('Generating plot...')
+fig, ax = plt.subplots()
+
+ax.scatter(x_coords, y_coords, zorder=2, marker='o', color='#0015ff', s=3)
+ax.scatter([x_coords[start_node], x_coords[end_node]], [y_coords[start_node], y_coords[end_node]], zorder=3, marker='o', color='#000000')
+ax.annotate('ORIGEM', [x_coords[start_node], y_coords[start_node]], weight='bold', size=6)
+ax.annotate('DESTINO', [x_coords[end_node], y_coords[end_node]], weight='bold', size=6)
+# for i in range(len(vertices)):
+#     plt.annotate(str(i), (x_coords[i],y_coords[i]))
+print('Plotting graph...')
+
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title(plot_title, loc='left')
+if GRAPH_GEN_ALGORITHM == 1:
+    text = '\n'.join((
+        r'$k=%d$' % (k, ),
+        r'$n=%d$' % (n, ),
+        r'$d=%.2f$'% (distance, )))
+elif GRAPH_GEN_ALGORITHM == 2:
+    text = '\n'.join((
+        r'$n=%d$' % (n, ),
+        r'$d=%.2f$' % (distance, )))
+elif GRAPH_GEN_ALGORITHM == 3:
+    if distance:
         text = '\n'.join((
-            r'$k=%d$' % (k, ),
             r'$n=%d$' % (n, ),
-            r'$d=%.2f$'% (distance, )))
-    elif GRAPH_GEN_ALGORITHM == 2:
+            r'$a=%d$' % (a, ),
+            r'$d=%.2f$' % (distance)))
+    else:
         text = '\n'.join((
             r'$n=%d$' % (n, ),
-            r'$d=%.2f$' % (distance, )))
+            r'$a=%d$' % (a, ),
+            r'd = None' % ()))
 
-    props = dict(boxstyle='round', facecolor='wheat', alpha=0.9)
-    # place a text box in upper right in axes coords
-    ax.text(0.8, 0.97, text, transform=plt.gcf().transFigure, fontsize=12,
-        verticalalignment='top', bbox=props)
+props = dict(boxstyle='round', facecolor='wheat', alpha=0.9)
+# place a text box in upper right in axes coords
+ax.text(0.8, 0.97, text, transform=plt.gcf().transFigure, fontsize=12,
+    verticalalignment='top', bbox=props)
 
-    with progressbar.ProgressBar(max_value=len(connections)) as bar:
-        for index, nodes in enumerate(connections):
-            point1 = index
-            for node in nodes:
-                point2 = node
-                plt.plot((x_coords[point1], x_coords[point2]),(y_coords[point1], y_coords[point2]), '#fcd703', zorder=1)
-            bar.update(index)
+with progressbar.ProgressBar(max_value=len(connections)) as bar:
+    for index, nodes in enumerate(connections):
+        point1 = index
+        for node in nodes:
+            point2 = node
+            plt.plot((x_coords[point1], x_coords[point2]),(y_coords[point1], y_coords[point2]), '#fcd703', zorder=1)
+        bar.update(index)
 
+if path:
     print('Plotting search path...')
 
     with progressbar.ProgressBar(max_value=len(path)):
@@ -107,8 +136,8 @@ if path:
             # plt.annotate(str(i), (x_coords[path[i]],y_coords[path[i]]))
             bar.update(i)
 
-    if (GRAPH_GEN_ALGORITHM == 2):
-        plt.vlines([x/3, 2*x/3], 0, y, linestyles='dashed', colors='red')
+if (GRAPH_GEN_ALGORITHM == 2):
+    plt.vlines([x/3, 2*x/3], 0, y, linestyles='dashed', colors='red')
 
-    # plt.savefig('/mnt/c/Users/bellu/Desktop/teste.png')
-    plt.savefig('graph.png')
+# plt.savefig('/mnt/c/Users/bellu/Desktop/teste.png')
+plt.savefig('graph.png')
