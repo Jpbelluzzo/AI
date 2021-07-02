@@ -1,3 +1,6 @@
+import numpy as np
+from numpy.core import numeric
+
 # Depth-First Search Algorithm
 
 def depth_first_search(init_node, end_node, vertices, connections):
@@ -55,6 +58,83 @@ def best_first_search(init_node, end_node, vertices, connections, distances):
 
 # A Algorithm
 
+def reconstructed_path(cameFrom, current):
+    total_path = [current]
+    while (int(cameFrom[current]) != -1):
+        current = int(cameFrom[current])
+        total_path = [current] + total_path
+    return total_path
+
+def A_search(init_node, end_node, vertices, connections, distances):
+    queue = [init_node]
+
+    n = len(vertices)
+
+    cameFrom = np.zeros(n) - 1
+
+    gScore = np.ones(n) * np.inf
+    gScore[init_node] = 0
+
+    fScore = np.ones(n) * np.inf
+    fScore[init_node] = 0
+
+    while(queue):
+
+        current, _ = min([(x, fScore[x]) for x in queue], key= lambda tup: tup[1])
+
+        if(current == end_node):
+            return reconstructed_path(cameFrom, current)
+    
+        queue.remove(current)
+
+        neighbours = connections[current]
+
+        for neighbour in neighbours:
+            tentative_score = gScore[current] + distances[current][neighbour]
+            if tentative_score < gScore[neighbour]:
+                cameFrom[neighbour] = current
+                gScore[neighbour] = tentative_score
+                fScore[neighbour] = gScore[neighbour] + gScore[neighbour]/distances[init_node][neighbour] * distances[neighbour][end_node]
+                if neighbour not in queue:
+                    queue.append(neighbour)
+
+
+def A_star_search(init_node, end_node, vertices, connections, distances):
+    queue = [init_node]
+
+    n = len(vertices)
+
+    cameFrom = np.zeros(n) - 1
+
+    gScore = np.ones(n) * np.inf
+    gScore[init_node] = 0
+
+    fScore = np.ones(n) * np.inf
+    fScore[init_node] = 0
+
+    while(queue):
+
+        current, _ = min([(x, fScore[x]) for x in queue], key= lambda tup: tup[1])
+
+        if(current == end_node):
+            return reconstructed_path(cameFrom, current)
+    
+        queue.remove(current)
+
+        neighbours = connections[current]
+
+        for neighbour in neighbours:
+            tentative_score = gScore[current] + distances[current][neighbour]
+            if tentative_score < gScore[neighbour]:
+                cameFrom[neighbour] = current
+                gScore[neighbour] = tentative_score
+                fScore[neighbour] = gScore[neighbour] + distances[neighbour][end_node]
+                if neighbour not in queue:
+                    queue.append(neighbour)
+
+'''
+# A Algorithm
+
 def A_search(init_node, end_node, vertices, connections, distances):
     visited = [False]*len(vertices)
     visited[init_node] = True
@@ -98,3 +178,4 @@ def A_star_search(init_node, end_node, vertices, connections, distances):
                 aux = path + [neighbour[0]]
                 queue.append((aux, neighbour[1]))
                 visited[neighbour[0]] = True
+'''
